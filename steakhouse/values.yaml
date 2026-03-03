@@ -3,7 +3,7 @@ namespace: restaurant-prod
 
 # Application Image
 image:
-  repository: yourdockerhub/steakhouse
+  repository: sueesh144/steakhouse
   tag: latest
 
 # Django Configuration
