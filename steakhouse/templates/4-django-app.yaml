@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-web
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.django.replicaCount }}
+  selector:
+    matchLabels:
+      app: django-web
+  template:
+    metadata:
+      labels:
+        app: django-web
+    spec:
+      containers:
+      - name: django-app
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        command: ["gunicorn", "--bind", "0.0.0.0:8000", "restaurant.wsgi:application"]
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: django-config
+        - secretRef:
+            name: django-secrets
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 5

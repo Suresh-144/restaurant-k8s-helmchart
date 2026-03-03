@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+  namespace: {{ .Values.namespace }}
+data:
+  DEBUG: {{ .Values.django.debug | quote }}
+  AUTH_PASSWORD_VALIDATORS_LIST: {{ .Values.django.passwordValidators | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: django-secrets
+  namespace: {{ .Values.namespace }}
+type: Opaque
+stringData:
+  SECRET_KEY: {{ .Values.django.secretKey | quote }}
+  DB_PASSWORD: {{ .Values.postgres.password | quote }}

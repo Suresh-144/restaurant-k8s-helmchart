@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: db-backup
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: postgres:15
+            command: ["/bin/sh", "-c", "pg_dump -U {{ .Values.postgres.user }} -h postgres-svc {{ .Values.postgres.database }} > /tmp/backup.sql"]
+            envFrom:
+            - secretRef:
+                name: django-secrets
+          restartPolicy: OnFailure
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-logger
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: fluentd
+  template:
+    metadata:
+      labels:
+        name: fluentd
+    spec:
+      containers:
+      - name: fluentd
+        image: fluent/fluentd-kubernetes-daemonset:v1.16
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+      tolerations:
+      - operator: "Exists"
+        effect: "NoSchedule"
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log

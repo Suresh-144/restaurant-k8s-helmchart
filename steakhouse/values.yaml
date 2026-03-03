@@ -1,0 +1,28 @@
+# Environment
+namespace: restaurant-prod
+
+# Application Image
+image:
+  repository: yourdockerhub/steakhouse
+  tag: latest
+
+# Django Configuration
+django:
+  replicaCount: 3
+  debug: "False"
+  secretKey: "django-insecure-7wx=6q7l0ho(9eabjyzrrr_+lu7s9@k8-i-mrnj_-+zydgi0di"
+  passwordValidators: "django.contrib.auth.password_validation.UserAttributeSimilarityValidator,django.contrib.auth.password_validation.MinimumLengthValidator"
+
+# Database Configuration
+postgres:
+  user: "restaurant_admin"
+  password: "super-secure-db-password"
+  database: "restaurant_db"
+  storageSize: "10Gi"
+
+
+# Scaling
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPU: 75
